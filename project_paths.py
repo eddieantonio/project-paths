@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -27,6 +28,12 @@ class ConfigurationNotFoundError(ProjectPathsError):
     """
 
 
+class PyProjectNotFoundError(ProjectPathsError):
+    """
+    Raised when an appropriate pyproject.toml cannot be found.
+    """
+
+
 class Paths:
     def __init__(self, configuration_path: Path):
         self._paths = self._parse_paths(configuration_path)
@@ -40,6 +47,7 @@ class Paths:
         except KeyError:
             raise ConfigurationNotFoundError(
                 f"cannot find [tool.{PYPROJECT_TABLE_NAME}]"
+                f" within {pyproject_path.resolve()}"
             )
 
         return {key: Path(path_str) for key, path_str in config.items()}
@@ -65,7 +73,6 @@ def _get_default_paths() -> Paths:
 
     if "_paths" not in globals():
         pyproject_path = find_path_to_pyproject()
-        assert pyproject_path.is_file()
         _paths = Paths(pyproject_path)
 
     return _paths
@@ -75,7 +82,15 @@ def find_path_to_pyproject() -> Path:
     """
     Tries to find the pyproject.toml relative to the current working directory.
     """
-    return Path(__name__).parent.parent / "pyproject.toml"
+    cwd = Path(os.getcwd())
+    for directory in (cwd,) + tuple(cwd.parents):
+        candidate = directory / "pyproject.toml"
+        if candidate.is_file():
+            return candidate
+
+    raise PyProjectNotFoundError(
+        f"cannot find pyproject.toml within {cwd} or its parents"
+    )
 
 
 def __getattr__(name: str) -> Paths:
