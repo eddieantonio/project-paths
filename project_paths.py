@@ -64,11 +64,18 @@ def _get_default_paths() -> Paths:
     global _paths
 
     if "_paths" not in globals():
-        pyproject_path = Path(__name__).parent.parent / "pyproject.toml"
+        pyproject_path = find_path_to_pyproject()
         assert pyproject_path.is_file()
         _paths = Paths(pyproject_path)
 
     return _paths
+
+
+def find_path_to_pyproject() -> Path:
+    """
+    Tries to find the pyproject.toml relative to the current working directory.
+    """
+    return Path(__name__).parent.parent / "pyproject.toml"
 
 
 def __getattr__(name: str) -> Paths:
