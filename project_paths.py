@@ -122,20 +122,28 @@ class Paths:
 def find_caller_relative_path_to_pyproject() -> Path:
     """
     Tries to find the pyproject.toml relative to the caller of this module.
+
+
     """
 
     mod_name, caller_filename = _find_caller_module_name_and_file()
 
-    if caller_filename is None:
-        raise PyProjectNotFoundError(
-            f"unable to determine filename of calling module: {mod_name}"
-        )
+    if isinstance(caller_filename, str):
+        working_file = Path(caller_filename)
+        assert working_file.is_file()
 
-    working_file = Path(caller_filename)
-    assert working_file.is_file()
+        working_directory = working_file.parent
+        return _find_pyproject_by_parent_traversal(working_directory)
 
-    working_directory = working_file.parent
-    return _find_pyproject_by_parent_traversal(working_directory)
+    if mod_name == "__main__":
+        # No filename but the mod name is __main__? Assume this is an interactive
+        # prompt; thus load from the current working directory
+        return _find_pyproject_by_parent_traversal(Path.cwd())
+
+    # cannot determine filename AAAANNDD mod_name is not __main__????
+    raise PyProjectNotFoundError(
+        f"unable to determine filename of calling module: {mod_name}"
+    )
 
 
 ######################################## Magic #########################################
