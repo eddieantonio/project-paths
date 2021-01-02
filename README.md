@@ -1,8 +1,8 @@
 project-paths
 =============
 
-![Lint and Test](https://github.com/eddieantonio/project-paths/workflows/Lint%20and%20Test/badge.svg)
-![PyPI](https://img.shields.io/pypi/v/project-paths)
+[![Lint and Test](https://github.com/eddieantonio/project-paths/workflows/Lint%20and%20Test/badge.svg)](https://github.com/eddieantonio/project-paths/actions?query=workflow%3A%22Lint+and+Test%22)
+[![PyPI](https://img.shields.io/pypi/v/project-paths)](https://pypi.org/project/project-paths/)
 
 Access file paths from `pyproject.toml`
 
