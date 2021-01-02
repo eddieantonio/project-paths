@@ -62,8 +62,24 @@ exec(paths.settings.read_text())
 # Or anything you want!
 ```
 
+
+### Caveats
+
+Names in `[tool.project-paths]` should be a valid Python identifier
+and the names **cannot** have a leading underscore. If a name has
+a leading underscore, a warning is issued and the name is inaccessible:
+
+```toml
+[tool.project-paths]
+# BAD: paths that start with a '_' cannot be used
+_my_path = "path/to/wherever"
+# GOOD: path is a valid Python identifier!
+my_path = "path/to/where
+```
+
 [pathlib]: https://docs.python.org/3/library/pathlib.html
 [tool-table]: https://www.python.org/dev/peps/pep-0518/#tool-table
+
 
 License
 =======
