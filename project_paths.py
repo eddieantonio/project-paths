@@ -100,12 +100,15 @@ class Paths(Protocol):
 class PathsFromFilename(Paths):
     def __init__(self, path_to_pyproject_toml: PathLike):
         self._paths = _parse_pyproject_toml(Path(path_to_pyproject_toml))
+        self._path_to_toml = path_to_pyproject_toml
 
     def __getattr__(self, name: str) -> Path:
         try:
             return self._paths[name]
         except KeyError:
-            raise AttributeError(f"no path named {name!r} in pyproject.toml") from None
+            raise AttributeError(
+                f"no path named {name!r} in {self._path_to_toml}"
+            ) from None
 
     def __dir__(self) -> List[str]:
         return sorted(set(object.__dir__(self)) | self._paths.keys())
