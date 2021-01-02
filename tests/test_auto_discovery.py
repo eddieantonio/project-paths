@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 
+from project_paths import find_caller_relative_path_to_pyproject, paths
+
 
 def test_find_pyproject_toml():
     """
     Automatically find a pyproject.toml within the current current working directory.
     """
-
-    from project_paths import find_caller_relative_path_to_pyproject
 
     # .parent == tests/, .parent.parent == repo root
     expected_pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
@@ -28,9 +28,6 @@ def test_find_pyproject_toml():
 
 
 def test_auto_discovery():
-    # import within the test to prevent any magic happening when pytest imports this
-    # file.
-    from project_paths import find_caller_relative_path_to_pyproject, paths
 
     assert len(paths) >= 1
     assert hasattr(paths, "tests")
