@@ -41,16 +41,14 @@ from typing import Dict, List, Optional, Protocol, Tuple
 
 import toml
 
-# How to access the automatic paths object.
-PATHS_ATTRIBUTE_NAME = "paths"
 # The table in pyproject.toml's [tool.*] namespace:
 PYPROJECT_TABLE_NAME = "project-paths"
 
 # the main export:
-__all__ = [PATHS_ATTRIBUTE_NAME]
-# exceptions:
+__all__ = ["paths"]
+# Exceptions:
 __all__ += ["ProjectPathsError", "ConfigurationNotFoundError", "PyProjectNotFoundError"]
-# advanced API:
+# Advanced API:
 __all__ += ["Paths", "find_caller_relative_path_to_pyproject"]
 
 
