@@ -3,5 +3,12 @@ branch = True
 source = project_paths
 
 [report]
+exclude_lines =
+    # The default exclude pattern:
+    pragma: no cover
+
+    # a line that is just an ellipses
+    ^\s*[.][.][.]\s*$
+
 omit =
     tests/*
