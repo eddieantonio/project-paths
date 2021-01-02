@@ -1,0 +1,4 @@
+# This is a basic pyproject.toml that does NOT include the
+# [tools.project-paths] key!
+[build-system]
+requires = ["setuptools", "wheel"]
