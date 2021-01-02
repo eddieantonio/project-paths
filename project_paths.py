@@ -84,9 +84,6 @@ class Paths(Protocol):
     Access paths within a parsed pyproject.toml file.
     """
 
-    def __init__(self, path_to_pyproject_toml: PathLike):
-        ...
-
     def __getattr__(self, name: str) -> Path:
         ...
 
