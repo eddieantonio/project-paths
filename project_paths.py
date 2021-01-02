@@ -33,6 +33,7 @@ Then access it in your Python application:
 
 """
 
+import inspect
 import os
 from pathlib import Path
 from typing import Dict, List
@@ -47,9 +48,9 @@ PYPROJECT_TABLE_NAME = "project-paths"
 # the main export:
 __all__ = [PATHS_ATTRIBUTE_NAME]
 # exceptions:
-__all__ = ["ProjectPathsError", "ConfigurationNotFoundError", "PyProjectNotFoundError"]
+__all__ += ["ProjectPathsError", "ConfigurationNotFoundError", "PyProjectNotFoundError"]
 # advanced API:
-__all__ = ["Paths", "find_path_to_pyproject"]
+__all__ += ["Paths", "find_caller_relative_path_to_pyproject"]
 
 
 ###################################### Exceptions ######################################
@@ -116,9 +117,9 @@ class Paths:
 ############################### Functions: External API ################################
 
 
-def find_path_to_pyproject() -> Path:
+def find_caller_relative_path_to_pyproject() -> Path:
     """
-    Tries to find the pyproject.toml relative to the current working directory.
+    Tries to find the pyproject.toml relative to the caller of this module!
     """
     # TODO: make this relative to the **caller's** module.
     cwd = Path(os.getcwd())
@@ -143,21 +144,26 @@ def __getattr__(name: str) -> Paths:
     """
     Enables lazy-loading of the .path attribute.
 
-    [PEP-562]: https://www.python.org/dev/peps/pep-0562/
+    See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
     """
     if name == PATHS_ATTRIBUTE_NAME:
         return _get_default_paths()
     raise AttributeError(f"module '{__name__}' has no attribute {name!r}")
 
 
-# TODO: implement __dir__?
+def __dir__() -> List[str]:
+    """
+    Needed to make let ``paths`` show up in help().
+    See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
+    """
+    return sorted(__all__)
 
 
 def _get_default_paths() -> Paths:
     global paths
 
     if PATHS_ATTRIBUTE_NAME not in globals():
-        pyproject_path = find_path_to_pyproject()
+        pyproject_path = find_caller_relative_path_to_pyproject()
         paths = Paths(pyproject_path)
 
     return paths
