@@ -1,6 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+"""
+Access paths from pyproject.toml
+
+-----
+Usage
+-----
+
+Add the following table to your pyproject.toml:
+
+.. code-block:: toml
+
+    [tool.project-paths]
+    # You can place as many paths as you want:
+    tests = "path/to/my/tests/"
+    docs = "path/to/my/docs/"
+    other = "path/to/literally/anything-else.txt"
+    absolute = "/opt/absolute/path"
+
+Then access it in your Python application:
+
+.. code-block:: python
+
+    from project_paths import paths
+
+    # Elements are pathlib.Path objects:
+    paths.tests.is_dir()
+    paths.docs / "README.md"
+    paths.other.write_text("hello")
+    assert paths.absolute.exists()
+
+"""
+
 import os
 from pathlib import Path
 from typing import Dict, List
@@ -13,6 +45,9 @@ PYPROJECT_TABLE_NAME = "project-paths"
 
 __all__ = ["Paths", "ProjectPathsError", "ConfigurationNotFoundError"]
 __all__ += [PATHS_ATTRIBUTE_NAME]
+
+
+###################################### Exceptions ######################################
 
 
 class ProjectPathsError(Exception):
@@ -34,7 +69,14 @@ class PyProjectNotFoundError(ProjectPathsError):
     """
 
 
+####################################### Classes ########################################
+
+
 class Paths:
+    """
+    Access paths within a parsed pyproject.toml file.
+    """
+
     def __init__(self, configuration_path: Path):
         self._paths = self._parse_paths(configuration_path)
 
@@ -65,17 +107,7 @@ class Paths:
         return len(self._paths)
 
 
-_paths: Paths
-
-
-def _get_default_paths() -> Paths:
-    global _paths
-
-    if "_paths" not in globals():
-        pyproject_path = find_path_to_pyproject()
-        _paths = Paths(pyproject_path)
-
-    return _paths
+############################### Functions: External API ################################
 
 
 def find_path_to_pyproject() -> Path:
@@ -93,7 +125,29 @@ def find_path_to_pyproject() -> Path:
     )
 
 
+######################################## Magic #########################################
+
+# The lazy-loaded project_path.paths object.
+# This is only instantiated when directly accessed.
+_paths: Paths
+
+
 def __getattr__(name: str) -> Paths:
+    """
+    Enables lazy-loading of the .path attribute.
+
+    [PEP-562]: https://www.python.org/dev/peps/pep-0562/
+    """
     if name == PATHS_ATTRIBUTE_NAME:
         return _get_default_paths()
     raise AttributeError
+
+
+def _get_default_paths() -> Paths:
+    global _paths
+
+    if "_paths" not in globals():
+        pyproject_path = find_path_to_pyproject()
+        _paths = Paths(pyproject_path)
+
+    return _paths
