@@ -134,7 +134,8 @@ def find_caller_relative_path_to_pyproject() -> Path:
     working_file = Path(caller_filename)
     assert working_file.is_file()
 
-    for directory in working_file.parents:
+    working_directory = working_file.parent
+    for directory in [working_directory, *working_directory.parents]:
         candidate = directory / "pyproject.toml"
         if candidate.is_file():
             return candidate
