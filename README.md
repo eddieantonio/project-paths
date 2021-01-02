@@ -77,7 +77,7 @@ a leading underscore, a warning is issued and the name is inaccessible:
 # BAD: paths that start with a '_' cannot be used
 _my_path = "path/to/wherever"
 # GOOD: path is a valid Python identifier!
-my_path = "path/to/where
+my_path = "path/to/wherever"
 ```
 
 [pathlib]: https://docs.python.org/3/library/pathlib.html
