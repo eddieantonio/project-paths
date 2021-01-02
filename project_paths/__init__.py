@@ -92,7 +92,15 @@ class Paths(Protocol):
         ...
 
 
+################################### Internal classes ###################################
+
+
 class _ConcretePaths(Paths):
+    """
+    The ACTUAL implementation of Paths. Takes paths from a pyproject.toml,
+    parses out the paths and enables access via attributes.
+    """
+
     def __init__(self, path_to_pyproject_toml: PathLike):
         self._paths = _parse_pyproject_toml(Path(path_to_pyproject_toml))
         self._path_to_toml = path_to_pyproject_toml
@@ -110,9 +118,6 @@ class _ConcretePaths(Paths):
 
     def __len__(self) -> int:
         return len(self._paths)
-
-
-################################### Internal classes ###################################
 
 
 class _PathsProxy(Paths):
