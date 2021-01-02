@@ -99,35 +99,7 @@ class Paths(Protocol):
 
 class PathsFromFilename(Paths):
     def __init__(self, path_to_pyproject_toml: PathLike):
-        self._paths = self._parse_pyproject_toml(Path(path_to_pyproject_toml))
-
-    def _parse_pyproject_toml(self, pyproject_path: Path) -> Dict[str, Path]:
-        with pyproject_path.open() as toml_file:
-            pyproject = toml.load(toml_file)
-
-        try:
-            config = pyproject["tool"][PYPROJECT_TABLE_NAME]
-        except KeyError:
-            raise ConfigurationNotFoundError(
-                f"cannot find [tool.{PYPROJECT_TABLE_NAME}]"
-                f" within {pyproject_path.resolve()}"
-            )
-
-        base = pyproject_path.parent
-        assert base.is_dir()
-
-        paths = {}
-        for name, path_str in config.items():
-            if name.startswith("_"):
-                # discard reserved name
-                warnings.warn(
-                    UserWarning(f"{name} is inaccessible due to leading underscore")
-                )
-                continue
-
-            paths[name] = _make_path(base, path_str)
-
-        return paths
+        self._paths = _parse_pyproject_toml(Path(path_to_pyproject_toml))
 
     def __getattr__(self, name: str) -> Path:
         try:
@@ -256,3 +228,35 @@ def _find_pyproject_by_parent_traversal(base: Path) -> Path:
     raise PyProjectNotFoundError(
         f"cannot find pyproject.toml within {base} or any of its parents"
     )
+
+
+def _parse_pyproject_toml(pyproject_path: Path) -> Dict[str, Path]:
+    """
+    Given a pyproject.toml, parses its texts and returns a dictionary of valid paths.
+    """
+    with pyproject_path.open() as toml_file:
+        pyproject = toml.load(toml_file)
+
+    try:
+        config = pyproject["tool"][PYPROJECT_TABLE_NAME]
+    except KeyError:
+        raise ConfigurationNotFoundError(
+            f"cannot find [tool.{PYPROJECT_TABLE_NAME}]"
+            f" within {pyproject_path.resolve()}"
+        )
+
+    base = pyproject_path.parent
+    assert base.is_dir()
+
+    paths = {}
+    for name, path_str in config.items():
+        if name.startswith("_"):
+            # discard reserved name
+            warnings.warn(
+                UserWarning(f"{name} is inaccessible due to leading underscore")
+            )
+            continue
+
+        paths[name] = _make_path(base, path_str)
+
+    return paths
