@@ -34,6 +34,7 @@ Then access it in your Python application:
 """
 
 import inspect
+import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -102,8 +103,15 @@ class Paths:
         assert base.is_dir()
 
         paths = {}
-        for key, path_str in config.items():
-            paths[key] = _make_path(base, path_str)
+        for name, path_str in config.items():
+            if name.startswith("_"):
+                # discard reserved name
+                warnings.warn(
+                    UserWarning(f"{name} is inaccessible due to leading underscore")
+                )
+                continue
+
+            paths[name] = _make_path(base, path_str)
 
         return paths
 
