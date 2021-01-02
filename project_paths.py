@@ -138,7 +138,12 @@ class _PathsProxy(Paths):
         return len(self._concrete_paths_instance)
 
 
-############################### Functions: External API ################################
+##################################### External API #####################################
+
+
+# The proxy intercepts attribute access and uses an appropriate concrete Paths object to
+# provide the correct paths to the caller.
+paths: Paths = _PathsProxy()
 
 
 def find_caller_relative_path_to_pyproject() -> Path:
@@ -170,40 +175,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
     )
 
 
-######################################## Magic #########################################
-
-# This is the dynamic "paths" attribute. For the sake of type-checking this attribute
-# "exists", but it is NEVER ACTUALL ASSIGNED to; instead, the calling module
-# gets a different Paths object every time it accesses this attribute.
-paths: Paths
-
-
-def __getattr__(name: str) -> Paths:
-    """
-    Enables dynamic loading of the .path attribute.
-
-    See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
-    """
-    if name == PATHS_ATTRIBUTE_NAME:
-        return _get_default_paths()
-    raise AttributeError(f"module '{__name__}' has no attribute {name!r}")
-
-
-def __dir__() -> List[str]:
-    """
-    Needed to make let ``paths`` show up in help().
-    See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
-    """
-    assert PATHS_ATTRIBUTE_NAME in __all__
-    return sorted(__all__)
-
-
 ################################## Internal functions ##################################
-
-
-def _get_default_paths() -> Paths:
-    pyproject_path = find_caller_relative_path_to_pyproject()
-    return PathsFromFilename(pyproject_path)
 
 
 def _make_path(base: Path, segment: str) -> Path:
