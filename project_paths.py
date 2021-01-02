@@ -119,17 +119,40 @@ class Paths:
 
 def find_caller_relative_path_to_pyproject() -> Path:
     """
-    Tries to find the pyproject.toml relative to the caller of this module!
+    Tries to find the pyproject.toml relative to the caller of this module.
     """
-    # TODO: make this relative to the **caller's** module.
-    cwd = Path(os.getcwd())
-    for directory in (cwd,) + tuple(cwd.parents):
+
+    try:
+        # Crawl up the stack until we no longer find a reference code written in THIS
+        # module.
+        for frame_info in inspect.stack():
+            mod_name = frame_info.frame.f_globals.get("__name__")
+            if mod_name != __name__:
+                caller_filename = frame_info.frame.f_globals["__file__"]
+                break
+        else:
+            # fallback: use this module :/
+            caller_filename = __file__
+    finally:
+        # Remove a reference cycle caused due to holding frame_info.frame
+        # See: https://docs.python.org/3/library/inspect.html#the-interpreter-stack
+        del frame_info
+
+    if not isinstance(caller_filename, str):
+        raise PyProjectNotFoundError(
+            f"unable to determine filename of calling module: {mod_name}"
+        )
+
+    working_file = Path(caller_filename)
+    assert working_file.is_file()
+
+    for directory in working_file.parents:
         candidate = directory / "pyproject.toml"
         if candidate.is_file():
             return candidate
 
     raise PyProjectNotFoundError(
-        f"cannot find pyproject.toml within {cwd} or its parents"
+        f"cannot find pyproject.toml within {working_file.parent} or its parents"
     )
 
 
