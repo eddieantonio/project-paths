@@ -100,7 +100,12 @@ class Paths:
 
         base = pyproject_path.parent
         assert base.is_dir()
-        return {key: _make_path(base, path_str) for key, path_str in config.items()}
+
+        paths = {}
+        for key, path_str in config.items():
+            paths[key] = _make_path(base, path_str)
+
+        return paths
 
     def __getattr__(self, name: str) -> Path:
         try:
