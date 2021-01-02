@@ -1,0 +1,4 @@
+[tool.project-paths]
+# names with a leading underscore are inaccessible and a warning should be
+# generated.
+_path = "this/will/be/inaccessible"
