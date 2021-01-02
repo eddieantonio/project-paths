@@ -30,12 +30,16 @@ def test_find_pyproject_toml():
 def test_auto_discovery():
     # import within the test to prevent any magic happening when pytest imports this
     # file.
-    from project_paths import paths
+    from project_paths import find_caller_relative_path_to_pyproject, paths
 
     assert len(paths) >= 1
     assert hasattr(paths, "tests")
     assert "tests" in dir(paths)
     assert isinstance(paths.tests, Path)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError) as exc_info:
         paths.does_not_exist
+
+    assert "does_not_exist" in str(exc_info.value)
+    path_str = str(find_caller_relative_path_to_pyproject())
+    assert path_str in str(exc_info.value)
