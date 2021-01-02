@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "project-paths"
 version = "0.1.0"
-description = "Access paths from pyproject.toml"
+description = "Access file paths from pyproject.toml"
 authors = ["Eddie Antonio Santos <eddieantonio@hey.com>"]
 license = "MIT"
 readme = "README.md"

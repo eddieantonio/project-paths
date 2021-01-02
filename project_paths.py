@@ -41,10 +41,15 @@ import toml
 
 # How to access the automatic paths object.
 PATHS_ATTRIBUTE_NAME = "paths"
+# The table in pyproject.toml's [tool.*] namespace:
 PYPROJECT_TABLE_NAME = "project-paths"
 
-__all__ = ["Paths", "ProjectPathsError", "ConfigurationNotFoundError"]
-__all__ += [PATHS_ATTRIBUTE_NAME]
+# the main export:
+__all__ = [PATHS_ATTRIBUTE_NAME]
+# exceptions:
+__all__ = ["ProjectPathsError", "ConfigurationNotFoundError", "PyProjectNotFoundError"]
+# advanced API:
+__all__ = ["Paths", "find_path_to_pyproject"]
 
 
 ###################################### Exceptions ######################################
@@ -114,6 +119,7 @@ def find_path_to_pyproject() -> Path:
     """
     Tries to find the pyproject.toml relative to the current working directory.
     """
+    # TODO: make this relative to the **caller's** module.
     cwd = Path(os.getcwd())
     for directory in (cwd,) + tuple(cwd.parents):
         candidate = directory / "pyproject.toml"
@@ -141,6 +147,9 @@ def __getattr__(name: str) -> Paths:
     if name == PATHS_ATTRIBUTE_NAME:
         return _get_default_paths()
     raise AttributeError
+
+
+# TODO: implement __dir__?
 
 
 def _get_default_paths() -> Paths:
