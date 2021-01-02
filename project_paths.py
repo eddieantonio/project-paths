@@ -158,14 +158,15 @@ def find_caller_relative_path_to_pyproject() -> Path:
 
 ######################################## Magic #########################################
 
-# This is a dynamically-loaded Paths object.
-# it's instantiation is handled by __getattr__()
+# This is the dynamic "paths" attribute. For the sake of type-checking this attribute
+# "exists", but it is NEVER ACTUALL ASSIGNED to; instead, the calling module
+# gets a different Paths object every time it accesses this attribute.
 paths: Paths
 
 
 def __getattr__(name: str) -> Paths:
     """
-    Enables lazy-loading of the .path attribute.
+    Enables dynamic loading of the .path attribute.
 
     See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
     """
@@ -179,14 +180,10 @@ def __dir__() -> List[str]:
     Needed to make let ``paths`` show up in help().
     See [PEP-562]: https://www.python.org/dev/peps/pep-0562/
     """
+    assert PATHS_ATTRIBUTE_NAME in __all__
     return sorted(__all__)
 
 
 def _get_default_paths() -> Paths:
-    global paths
-
-    if PATHS_ATTRIBUTE_NAME not in globals():
-        pyproject_path = find_caller_relative_path_to_pyproject()
-        paths = Paths(pyproject_path)
-
-    return paths
+    pyproject_path = find_caller_relative_path_to_pyproject()
+    return Paths(pyproject_path)
