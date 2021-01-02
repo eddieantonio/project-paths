@@ -99,7 +99,9 @@ class Paths:
                 f" within {pyproject_path.resolve()}"
             )
 
-        return {key: Path(path_str) for key, path_str in config.items()}
+        base = pyproject_path.parent
+        assert base.is_dir()
+        return {key: _make_path(base, path_str) for key, path_str in config.items()}
 
     def __getattr__(self, name: str) -> Path:
         try:
@@ -184,6 +186,21 @@ def __dir__() -> List[str]:
     return sorted(__all__)
 
 
+################################## Internal functions ##################################
+
+
 def _get_default_paths() -> Paths:
     pyproject_path = find_caller_relative_path_to_pyproject()
     return Paths(pyproject_path)
+
+
+def _make_path(base: Path, segment: str) -> Path:
+    """
+    Returns the segment relative to the given base, if it's a relative path
+    Absolute paths are returned as is.
+    """
+    original_path = Path(segment)
+    if original_path.is_absolute():
+        return original_path
+
+    return base.joinpath(original_path)
