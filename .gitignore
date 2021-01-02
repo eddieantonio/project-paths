@@ -3,3 +3,7 @@ __pycache__/
 
 # Building:
 dist/
+
+# Tests and coverage
+.coverage
+coverage.xml
