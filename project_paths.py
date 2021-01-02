@@ -36,7 +36,7 @@ Then access it in your Python application:
 import inspect
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
 import toml
 
@@ -126,7 +126,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
 
     mod_name, caller_filename = _find_caller_module_name_and_file()
 
-    if not isinstance(caller_filename, str):
+    if caller_filename is None:
         raise PyProjectNotFoundError(
             f"unable to determine filename of calling module: {mod_name}"
         )
@@ -192,7 +192,7 @@ def _make_path(base: Path, segment: str) -> Path:
     return base.joinpath(original_path)
 
 
-def _find_caller_module_name_and_file():
+def _find_caller_module_name_and_file() -> Tuple[str, Optional[str]]:
     """
     Returns the module name of the first caller in the stack that DOESN'T from from this
     module -- namely, project_paths.
@@ -203,7 +203,9 @@ def _find_caller_module_name_and_file():
         for frame_info in inspect.stack():
             mod_name = frame_info.frame.f_globals.get("__name__")
             if mod_name != __name__:
-                return mod_name, frame_info.frame.f_globals["__file__"]
+                assert isinstance(mod_name, str)
+                filename = frame_info.frame.f_globals.get("__file__")
+                return mod_name, filename
         raise RuntimeError(f"cannot find any caller outside of {__name__}")
     finally:
         # Remove a reference cycle caused due to holding frame_info.frame
