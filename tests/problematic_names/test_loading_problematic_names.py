@@ -12,3 +12,4 @@ def test_loading_problematic_names():
 
     with pytest.warns(UserWarning, match="_paths"):
         from project_paths import paths
+    assert len(paths) == 0
