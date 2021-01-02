@@ -83,6 +83,8 @@ class Paths:
     Access paths within a parsed pyproject.toml file.
     """
 
+
+class PathsFromFilename(Paths):
     def __init__(self, configuration_path: Path):
         self._paths = self._parse_paths(configuration_path)
         # TODO: warn if any keys have a leading underscore
@@ -193,7 +195,7 @@ def __dir__() -> List[str]:
 
 def _get_default_paths() -> Paths:
     pyproject_path = find_caller_relative_path_to_pyproject()
-    return Paths(pyproject_path)
+    return PathsFromFilename(pyproject_path)
 
 
 def _make_path(base: Path, segment: str) -> Path:
