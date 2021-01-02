@@ -7,6 +7,9 @@ import pytest
 
 from project_paths import find_caller_relative_path_to_pyproject, paths
 
+# These paths MUST be declared in the ACTUAL pyproject.toml for this project.
+EXPECTED_PATHS = ("tests", "absolute")
+
 
 def test_find_pyproject_toml():
     """
@@ -27,13 +30,32 @@ def test_find_pyproject_toml():
     assert "project-paths" in pyproject_text
 
 
-def test_auto_discovery():
+@pytest.mark.parametrize("path_name", EXPECTED_PATHS)
+def test_basic_usage(path_name):
+    """
+    Tests basic usage of the API.
+    """
 
-    assert len(paths) >= 1
-    assert hasattr(paths, "tests")
-    assert "tests" in dir(paths)
-    assert isinstance(paths.tests, Path)
+    assert path_name in dir(paths)
+    assert hasattr(paths, path_name)
 
+    path = getattr(paths, path_name)
+    assert isinstance(path, Path)
+    assert path.is_absolute()
+
+
+def test_len():
+    assert len(paths) >= len(EXPECTED_PATHS)
+
+
+def test_absolute_path():
+    """
+    An absolute path near the root should have few parts.
+    """
+    assert len(paths.absolute.parts) <= 2
+
+
+def test_path_does_not_exist():
     with pytest.raises(AttributeError) as exc_info:
         paths.does_not_exist
 
