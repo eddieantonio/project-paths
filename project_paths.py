@@ -135,14 +135,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
     assert working_file.is_file()
 
     working_directory = working_file.parent
-    for directory in [working_directory, *working_directory.parents]:
-        candidate = directory / "pyproject.toml"
-        if candidate.is_file():
-            return candidate
-
-    raise PyProjectNotFoundError(
-        f"cannot find pyproject.toml within {working_file.parent} or its parents"
-    )
+    return _find_pyproject_by_parent_traversal(working_directory)
 
 
 ######################################## Magic #########################################
@@ -212,3 +205,18 @@ def _find_caller_module_name_and_file() -> Tuple[str, Optional[str]]:
         # Remove a reference cycle caused due to holding frame_info.frame
         # See: https://docs.python.org/3/library/inspect.html#the-interpreter-stack
         del frame_info
+
+
+def _find_pyproject_by_parent_traversal(base: Path) -> Path:
+    """
+    Returns the path to pyproject.toml relative to the given base path.
+    Traverses BACKWARDS starting from the base and going out of the parents.
+    """
+    for directory in [base, *base.parents]:
+        candidate = directory / "pyproject.toml"
+        if candidate.is_file():
+            return candidate
+
+    raise PyProjectNotFoundError(
+        f"cannot find pyproject.toml within {base} or any of its parents"
+    )
