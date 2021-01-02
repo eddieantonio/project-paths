@@ -2,6 +2,7 @@ project-paths
 =============
 
 [![Lint and Test](https://github.com/eddieantonio/project-paths/workflows/Lint%20and%20Test/badge.svg)](https://github.com/eddieantonio/project-paths/actions?query=workflow%3A%22Lint+and+Test%22)
+[![codecov](https://codecov.io/gh/eddieantonio/project-paths/branch/main/graph/badge.svg?token=1L6746DIHY)](https://codecov.io/gh/eddieantonio/project-paths)
 [![PyPI](https://img.shields.io/pypi/v/project-paths)](https://pypi.org/project/project-paths/)
 
 Access file paths from `pyproject.toml`
