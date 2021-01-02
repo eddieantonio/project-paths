@@ -1,6 +1,9 @@
 project-paths
 =============
 
+![Lint and Test](https://github.com/eddieantonio/project-paths/workflows/Lint%20and%20Test/badge.svg)
+![PyPI](https://img.shields.io/pypi/v/project-paths)
+
 Access file paths from `pyproject.toml`
 
 > Thanks to [@Madoshakalaka](https://github.com/madoshakalaka) for the idea!
