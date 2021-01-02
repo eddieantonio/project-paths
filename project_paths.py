@@ -147,7 +147,7 @@ def __getattr__(name: str) -> Paths:
     """
     if name == PATHS_ATTRIBUTE_NAME:
         return _get_default_paths()
-    raise AttributeError
+    raise AttributeError(f"module '{__name__}' has no attribute {name!r}")
 
 
 # TODO: implement __dir__?
