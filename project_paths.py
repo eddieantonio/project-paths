@@ -107,7 +107,7 @@ class Paths:
         try:
             return self._paths[name]
         except KeyError:
-            raise AttributeError from None
+            raise AttributeError(f"no path named {name!r} in pyproject.toml") from None
 
     def __dir__(self) -> List[str]:
         return sorted(set(super().__dir__()) | self._paths.keys())
@@ -122,8 +122,6 @@ class Paths:
 def find_caller_relative_path_to_pyproject() -> Path:
     """
     Tries to find the pyproject.toml relative to the caller of this module.
-
-
     """
 
     mod_name, caller_filename = _find_caller_module_name_and_file()
@@ -131,9 +129,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
     if isinstance(caller_filename, str):
         working_file = Path(caller_filename)
         assert working_file.is_file()
-
-        working_directory = working_file.parent
-        return _find_pyproject_by_parent_traversal(working_directory)
+        return _find_pyproject_by_parent_traversal(working_file.parent)
 
     if mod_name == "__main__":
         # No filename but the mod name is __main__? Assume this is an interactive
