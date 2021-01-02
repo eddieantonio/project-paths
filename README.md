@@ -82,6 +82,6 @@ my_path = "path/to/where
 
 
 License
-=======
+-------
 
 2021 © Eddie Antonio Santos. MIT Licensed.
