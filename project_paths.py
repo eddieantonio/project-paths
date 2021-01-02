@@ -35,8 +35,9 @@ Then access it in your Python application:
 
 import inspect
 import warnings
+from os import PathLike
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Protocol, Tuple
 
 import toml
 
@@ -78,10 +79,22 @@ class PyProjectNotFoundError(ProjectPathsError):
 ####################################### Classes ########################################
 
 
-class Paths:
+class Paths(Protocol):
     """
     Access paths within a parsed pyproject.toml file.
     """
+
+    def __init__(self, path_to_pyproject_toml: PathLike):
+        ...
+
+    def __getattr__(self, name: str) -> Path:
+        ...
+
+    def __dir__(self) -> List[str]:
+        ...
+
+    def __len__(self) -> int:
+        ...
 
 
 class PathsFromFilename(Paths):
@@ -124,7 +137,7 @@ class PathsFromFilename(Paths):
             raise AttributeError(f"no path named {name!r} in pyproject.toml") from None
 
     def __dir__(self) -> List[str]:
-        return sorted(set(super().__dir__()) | self._paths.keys())
+        return sorted(set(object.__dir__(self)) | self._paths.keys())
 
     def __len__(self) -> int:
         return len(self._paths)
