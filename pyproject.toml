@@ -13,6 +13,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+include = ["project_paths/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
