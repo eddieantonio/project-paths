@@ -124,21 +124,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
     Tries to find the pyproject.toml relative to the caller of this module.
     """
 
-    try:
-        # Crawl up the stack until we no longer find a reference code written in THIS
-        # module.
-        for frame_info in inspect.stack():
-            mod_name = frame_info.frame.f_globals.get("__name__")
-            if mod_name != __name__:
-                caller_filename = frame_info.frame.f_globals["__file__"]
-                break
-        else:
-            # fallback: use this module :/
-            caller_filename = __file__
-    finally:
-        # Remove a reference cycle caused due to holding frame_info.frame
-        # See: https://docs.python.org/3/library/inspect.html#the-interpreter-stack
-        del frame_info
+    mod_name, caller_filename = _find_caller_module_name_and_file()
 
     if not isinstance(caller_filename, str):
         raise PyProjectNotFoundError(
@@ -204,3 +190,22 @@ def _make_path(base: Path, segment: str) -> Path:
         return original_path
 
     return base.joinpath(original_path)
+
+
+def _find_caller_module_name_and_file():
+    """
+    Returns the module name of the first caller in the stack that DOESN'T from from this
+    module -- namely, project_paths.
+    """
+    try:
+        # Crawl up the stack until we no longer find a reference code written in THIS
+        # module.
+        for frame_info in inspect.stack():
+            mod_name = frame_info.frame.f_globals.get("__name__")
+            if mod_name != __name__:
+                return mod_name, frame_info.frame.f_globals["__file__"]
+        raise RuntimeError(f"cannot find any caller outside of {__name__}")
+    finally:
+        # Remove a reference cycle caused due to holding frame_info.frame
+        # See: https://docs.python.org/3/library/inspect.html#the-interpreter-stack
+        del frame_info
