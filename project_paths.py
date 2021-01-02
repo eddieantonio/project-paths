@@ -84,6 +84,7 @@ class Paths:
 
     def __init__(self, configuration_path: Path):
         self._paths = self._parse_paths(configuration_path)
+        # TODO: warn if any keys have a leading underscore
 
     def _parse_paths(self, pyproject_path: Path) -> Dict[str, Path]:
         with pyproject_path.open() as toml_file:
@@ -133,9 +134,9 @@ def find_path_to_pyproject() -> Path:
 
 ######################################## Magic #########################################
 
-# The lazy-loaded project_path.paths object.
-# This is only instantiated when directly accessed.
-_paths: Paths
+# This is a dynamically-loaded Paths object.
+# it's instantiation is handled by __getattr__()
+paths: Paths
 
 
 def __getattr__(name: str) -> Paths:
@@ -153,10 +154,10 @@ def __getattr__(name: str) -> Paths:
 
 
 def _get_default_paths() -> Paths:
-    global _paths
+    global paths
 
-    if "_paths" not in globals():
+    if PATHS_ATTRIBUTE_NAME not in globals():
         pyproject_path = find_path_to_pyproject()
-        _paths = Paths(pyproject_path)
+        paths = Paths(pyproject_path)
 
-    return _paths
+    return paths
