@@ -28,7 +28,7 @@ jobs:
       - name: Lint
         run: poetry run black --check --diff .
       - name: Test
-        run: poetry run pytest
+        run: poetry run pytest -cov=./
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

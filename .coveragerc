@@ -1,3 +1,7 @@
 [run]
 branch = True
 source = project_paths
+
+[report]
+omit =
+    tests/*
