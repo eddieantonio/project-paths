@@ -114,6 +114,30 @@ class PathsFromFilename(Paths):
         return len(self._paths)
 
 
+################################### Internal classes ###################################
+
+
+class _PathsProxy(Paths):
+    """
+    Acts like a Paths object but creates a concrete Paths object dynamically on every
+    access.
+    """
+
+    @property
+    def _concrete_paths_instance(self) -> Paths:
+        path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
+        return PathsFromFilename(path_to_pyproject_toml)
+
+    def __getattr__(self, name: str) -> Path:
+        return getattr(self._concrete_paths_instance, name)
+
+    def __dir__(self) -> List[str]:
+        return dir(self._concrete_paths_instance)
+
+    def __len__(self) -> int:
+        return len(self._concrete_paths_instance)
+
+
 ############################### Functions: External API ################################
 
 
