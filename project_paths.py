@@ -98,11 +98,10 @@ class Paths(Protocol):
 
 
 class PathsFromFilename(Paths):
-    def __init__(self, configuration_path: Path):
-        self._paths = self._parse_paths(configuration_path)
-        # TODO: warn if any keys have a leading underscore
+    def __init__(self, path_to_pyproject_toml: PathLike):
+        self._paths = self._parse_pyproject_toml(Path(path_to_pyproject_toml))
 
-    def _parse_paths(self, pyproject_path: Path) -> Dict[str, Path]:
+    def _parse_pyproject_toml(self, pyproject_path: Path) -> Dict[str, Path]:
         with pyproject_path.open() as toml_file:
             pyproject = toml.load(toml_file)
 
