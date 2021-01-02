@@ -85,6 +85,29 @@ my_path = "path/to/wherever"
 [tool-table]: https://www.python.org/dev/peps/pep-0518/#tool-table
 
 
+### Errors
+
+All intentional errors inherit from `project_paths.ProjectPathError`.
+
+#### `PyProjectNotFoundError`
+
+Raised when `project_paths` cannot find an appropriate `pyproject.toml`
+for the caller. This can happen if the caller simply does not have
+a `pyproject.toml` file, or when it's not possible to determine the
+caller's filename.
+
+> **NOTE**: if accessing paths from the interactive console,
+> `project_paths` will find the appropriate `pyproject.toml` relative to
+> the current working directory!
+
+
+#### `ConfigurationNotFoundError`
+
+Raised when `project_paths` cannot find the `[tool.project-paths]` table
+within the `pyproject.toml` file. Perhaps there is a typo or perhaps the
+`project_paths` inferred the incorrect module path.
+
+
 License
 -------
 
