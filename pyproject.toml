@@ -4,9 +4,10 @@ version = "0.1.0"
 description = "Access paths from pyproject.toml"
 authors = ["Eddie Antonio Santos <eddieantonio@hey.com>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
@@ -15,6 +16,7 @@ black = "^20.8b1"
 pytest = "^6.2.1"
 
 [tool.project-paths]
+# NOTE: This key is used in tests cases!
 tests = "tests/"
 
 [build-system]
