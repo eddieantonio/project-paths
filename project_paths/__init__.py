@@ -144,6 +144,10 @@ class _PathsProxy(Paths):
     def __len__(self) -> int:
         return len(self._concrete_paths_instance)
 
+    def __repr__(self) -> str:
+        cls_name = type(self).__qualname__
+        return f"<{cls_name} routing attribute access to {self._concrete_paths_instance!r}>"
+
 
 ##################################### External API #####################################
 
