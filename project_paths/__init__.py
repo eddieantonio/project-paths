@@ -82,10 +82,10 @@ class Paths(Protocol):
     Access paths within a parsed pyproject.toml file.
     """
 
-    def __getattr__(self, name: str) -> Path:
+    def __dir__(self) -> List[str]:
         ...
 
-    def __dir__(self) -> List[str]:
+    def __getattr__(self, name: str) -> Path:
         ...
 
     def __len__(self) -> int:
@@ -105,6 +105,9 @@ class _ConcretePaths(Paths):
         self._paths = _parse_pyproject_toml(Path(path_to_pyproject_toml))
         self._path_to_toml = path_to_pyproject_toml
 
+    def __dir__(self) -> List[str]:
+        return sorted(set(object.__dir__(self)) | self._paths.keys())
+
     def __getattr__(self, name: str) -> Path:
         try:
             return self._paths[name]
@@ -112,9 +115,6 @@ class _ConcretePaths(Paths):
             raise AttributeError(
                 f"no path named {name!r} in {self._path_to_toml}"
             ) from None
-
-    def __dir__(self) -> List[str]:
-        return sorted(set(object.__dir__(self)) | self._paths.keys())
 
     def __len__(self) -> int:
         return len(self._paths)
@@ -135,11 +135,11 @@ class _PathsProxy(Paths):
         path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
         return _ConcretePaths(path_to_pyproject_toml)
 
-    def __getattr__(self, name: str) -> Path:
-        return getattr(self._concrete_paths_instance, name)
-
     def __dir__(self) -> List[str]:
         return dir(self._concrete_paths_instance)
+
+    def __getattr__(self, name: str) -> Path:
+        return getattr(self._concrete_paths_instance, name)
 
     def __len__(self) -> int:
         return len(self._concrete_paths_instance)
@@ -189,18 +189,6 @@ def find_caller_relative_path_to_pyproject() -> Path:
 ################################## Internal functions ##################################
 
 
-def _make_path(base: Path, segment: str) -> Path:
-    """
-    Returns the segment relative to the given base, if it's a relative path
-    Absolute paths are returned as is.
-    """
-    original_path = Path(segment)
-    if original_path.is_absolute():
-        return original_path
-
-    return base.joinpath(original_path)
-
-
 def _find_caller_module_name_and_file() -> Tuple[str, Optional[str]]:
     """
     Returns the module name of the first caller in the stack that DOESN'T from from this
@@ -235,6 +223,18 @@ def _find_pyproject_by_parent_traversal(base: Path) -> Path:
     raise PyProjectNotFoundError(
         f"cannot find pyproject.toml within {base} or any of its parents"
     )
+
+
+def _make_path(base: Path, segment: str) -> Path:
+    """
+    Returns the segment relative to the given base, if it's a relative path
+    Absolute paths are returned as is.
+    """
+    original_path = Path(segment)
+    if original_path.is_absolute():
+        return original_path
+
+    return base.joinpath(original_path)
 
 
 def _parse_pyproject_toml(pyproject_path: Path) -> Dict[str, Path]:
