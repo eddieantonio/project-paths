@@ -119,6 +119,10 @@ class _ConcretePaths(Paths):
     def __len__(self) -> int:
         return len(self._paths)
 
+    def __repr__(self) -> str:
+        cls_name = type(self).__qualname__
+        return f"{cls_name}({self._path_to_toml!r})"
+
 
 class _PathsProxy(Paths):
     """
