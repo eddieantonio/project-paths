@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "project-paths"
-version = "0.2.0"
+version = "1.0.0"
 description = "Access file paths from pyproject.toml"
 authors = ["Eddie Antonio Santos <eddieantonio@hey.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ homepage = "https://github.com/eddieantonio/project-paths"
 repository = "https://github.com/eddieantonio/project-paths"
 keywords = ["pathlib", "pyproject.toml", "paths", "configuration"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
