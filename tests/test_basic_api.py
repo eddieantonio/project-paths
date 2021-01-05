@@ -44,6 +44,13 @@ def test_basic_usage(path_name):
     assert path.is_absolute()
 
 
+def test_project_root():
+    from project_paths import project_root
+
+    assert project_root.is_dir()
+    assert (project_root / "pyproject.toml").is_file()
+
+
 def test_len():
     assert len(paths) >= len(EXPECTED_PATHS)
 
