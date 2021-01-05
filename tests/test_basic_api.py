@@ -3,9 +3,9 @@
 
 from pathlib import Path
 
+import project_paths
 import pytest
-
-from project_paths import find_caller_relative_path_to_pyproject, paths
+from project_paths import find_caller_relative_path_to_pyproject, paths, project_root
 
 # These paths MUST be declared in the ACTUAL pyproject.toml for this project.
 EXPECTED_PATHS = ("tests", "absolute")
@@ -44,13 +44,13 @@ def test_basic_usage(path_name):
     assert path.is_absolute()
 
 
-def test_project_root():
-    import project_paths
-    from project_paths import project_root
+def test_project_root() -> None:
+    # Makes this test resilient to renaming the package with an auto-refactor
+    package_name = project_paths.__name__
 
     assert project_root.is_dir()
     assert (project_root / "pyproject.toml").is_file()
-    assert (project_root / project_paths.__name__).is_dir()
+    assert (project_root / package_name).is_dir()
 
 
 def test_len():
