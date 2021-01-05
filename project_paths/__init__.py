@@ -37,7 +37,7 @@ import inspect
 import warnings
 from os import PathLike
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol, Tuple
+from typing import Dict, List, Optional, Protocol, Tuple, cast
 
 import toml
 
@@ -124,6 +124,31 @@ class _ConcretePaths(Paths):
         return f"{cls_name}({self._path_to_toml!r})"
 
 
+class _PathProxy:
+    """
+    Acts like a Path object but creates a concrete Paths object dynamically on every
+    access.
+    """
+
+    @property
+    def _concrete_path_instance(self) -> Path:
+        path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
+        return path_to_pyproject_toml.parent
+
+    def __dir__(self) -> List[str]:
+        return dir(self._concrete_path_instance)
+
+    def __getattr__(self, name):
+        return getattr(self._concrete_path_instance, name)
+
+    def __truediv__(self, other) -> Path:
+        return self._concrete_path_instance / other
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__qualname__
+        return f"<{cls_name} routing attribute access to {self._concrete_paths_instance!r}>"
+
+
 class _PathsProxy(Paths):
     """
     Acts like a Paths object but creates a concrete Paths object dynamically on every
@@ -155,6 +180,7 @@ class _PathsProxy(Paths):
 # The proxy intercepts attribute access and uses an appropriate concrete Paths object to
 # provide the correct paths to the caller.
 paths: Paths = _PathsProxy()
+project_root = cast(Path, _PathProxy())
 
 
 def find_caller_relative_path_to_pyproject() -> Path:

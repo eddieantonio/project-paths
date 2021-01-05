@@ -45,10 +45,12 @@ def test_basic_usage(path_name):
 
 
 def test_project_root():
+    import project_paths
     from project_paths import project_root
 
     assert project_root.is_dir()
     assert (project_root / "pyproject.toml").is_file()
+    assert (project_root / project_paths.__name__).is_dir()
 
 
 def test_len():
