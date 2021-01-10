@@ -179,6 +179,9 @@ class _ProjectRootProxy(_Proxy[Path]):
     def __str__(self) -> str:
         return str(self._concrete_instance)
 
+    def __bytes__(self) -> bytes:
+        return bytes(self._concrete_instance)
+
 
 class _PathsProxy(_Proxy[Paths]):
     """
