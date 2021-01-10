@@ -217,7 +217,7 @@ def find_caller_relative_path_to_pyproject() -> Path:
 
     mod_name, caller_filename = _find_caller_module_name_and_file()
 
-    if mod_name in ("inspect", "pydoc"):
+    if mod_name in ("inspect", "pydoc", "pathlib"):
         # inspect.getmembers() might be calling us, or maybe pydoc.
         # this makes things confusing, so just use the current working dir.
         # TODO: assert that these are the built-in modules!
