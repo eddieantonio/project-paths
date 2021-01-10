@@ -168,10 +168,13 @@ class _ProjectRootProxy(_Proxy[Path]):
         path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
         return path_to_pyproject_toml.parent
 
-    # __dunder__ methods that must be EXPLICITLY overridden:
+    # __dunder__ methods must be EXPLICITLY overridden:
 
-    def __truediv__(self, other) -> Path:
-        return self._concrete_instance / other
+    def __bytes__(self) -> bytes:
+        return bytes(self._concrete_instance)
+
+    # Note: will not override __eq__ and __hash__ because that may break some
+    # assumptions :/
 
     def __fspath__(self) -> Union[str, bytes]:
         return self._concrete_instance.__fspath__()
@@ -179,8 +182,8 @@ class _ProjectRootProxy(_Proxy[Path]):
     def __str__(self) -> str:
         return str(self._concrete_instance)
 
-    def __bytes__(self) -> bytes:
-        return bytes(self._concrete_instance)
+    def __truediv__(self, other) -> Path:
+        return self._concrete_instance / other
 
 
 class _PathsProxy(_Proxy[Paths]):
