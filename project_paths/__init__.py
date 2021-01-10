@@ -176,6 +176,9 @@ class _ProjectRootProxy(_Proxy[Path]):
     def __fspath__(self) -> Union[str, bytes]:
         return self._concrete_instance.__fspath__()
 
+    def __str__(self) -> str:
+        return str(self._concrete_instance)
+
 
 class _PathsProxy(_Proxy[Paths]):
     """
