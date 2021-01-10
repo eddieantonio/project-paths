@@ -66,6 +66,23 @@ exec(paths.settings.read_text())
 # Or anything you want!
 ```
 
+### Access your project root directory using `project_root`
+
+You can access the project root directory (assumed to be the directory
+that contains `pyproject.toml`) using `project_root`, which acts like
+a `pathlib.Path` object:
+
+```python
+from project_paths import project_root
+
+assert project_root.is_dir()
+assert (project_root / "pyproject.toml").is_file()
+print((project_root / "README.md").read_text())
+```
+
+> **Note**: `project_root` is not a true `Path` object. Use
+> `Path(project_root)` to obtain a true `Path` object.
+
 
 ### Caveats
 
