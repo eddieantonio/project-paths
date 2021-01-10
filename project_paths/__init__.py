@@ -150,7 +150,7 @@ class _Proxy(Generic[T]):
         return f"<{cls_name} routing attribute access to {self._concrete_instance!r}>"
 
     @classmethod
-    def as_wrapped_object_type(cls) -> T:
+    def as_proxied_type(cls) -> T:
         """
         For type-checking purposes, returns a proxy as the type of the wrapped object.
         """
@@ -192,8 +192,8 @@ class _PathsProxy(_Proxy[Paths]):
 
 # The proxy intercepts attribute access and uses an appropriate concrete Paths object to
 # provide the correct paths to the caller.
-paths = _PathsProxy.as_wrapped_object_type()
-project_root = _ProjectRootProxy.as_wrapped_object_type()
+paths: Paths = _PathsProxy.as_proxied_type()
+project_root: Path = _ProjectRootProxy.as_proxied_type()
 
 
 def find_caller_relative_path_to_pyproject() -> Path:
