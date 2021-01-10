@@ -247,12 +247,18 @@ def _find_caller_module_name_and_file() -> Tuple[str, Optional[str]]:
     Returns the module name of the first caller in the stack that DOESN'T from from this
     module -- namely, project_paths.
     """
+
+    MODULE_EXCEPTIONS = (
+        # Skip over any stack frames in THIS module
+        __name__,
+    )
+
     try:
         # Crawl up the stack until we no longer find a reference code written in THIS
         # module.
         for frame_info in inspect.stack():
             mod_name = frame_info.frame.f_globals.get("__name__")
-            if mod_name != __name__:
+            if mod_name not in MODULE_EXCEPTIONS:
                 assert isinstance(mod_name, str)
                 filename = frame_info.frame.f_globals.get("__file__")
                 return mod_name, filename
