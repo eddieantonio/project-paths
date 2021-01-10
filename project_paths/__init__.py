@@ -37,7 +37,7 @@ import inspect
 import warnings
 from os import PathLike
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol, Tuple, cast
+from typing import Dict, Generic, List, Optional, Protocol, Tuple, TypeVar, cast
 
 import toml
 
@@ -95,6 +95,9 @@ class Paths(Protocol):
 ################################### Internal classes ###################################
 
 
+T = TypeVar("T")
+
+
 class _ConcretePaths(Paths):
     """
     The ACTUAL implementation of Paths. Takes paths from a pyproject.toml,
@@ -124,54 +127,64 @@ class _ConcretePaths(Paths):
         return f"{cls_name}({self._path_to_toml!r})"
 
 
-class _PathProxy:
+class _Proxy(Generic[T]):
     """
-    Acts like a Path object but creates a concrete Paths object dynamically on every
-    access.
+    Proxy calls to regular attributes to the overriden _concrete_instance.
+
+    Note: all __dunder__ methods (apart from __dir__) still need to be overriden in
+    subclasses.
     """
 
     @property
-    def _concrete_path_instance(self) -> Path:
-        path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
-        return path_to_pyproject_toml.parent
+    def _concrete_instance(self) -> T:
+        raise NotImplementedError
 
     def __dir__(self) -> List[str]:
-        return dir(self._concrete_path_instance)
+        return dir(self._concrete_instance)
 
     def __getattr__(self, name):
-        return getattr(self._concrete_path_instance, name)
-
-    def __truediv__(self, other) -> Path:
-        return self._concrete_path_instance / other
+        return getattr(self._concrete_instance, name)
 
     def __repr__(self) -> str:
         cls_name = type(self).__qualname__
-        return f"<{cls_name} routing attribute access to {self._concrete_paths_instance!r}>"
+        return f"<{cls_name} routing attribute access to {self._concrete_instance!r}>"
+
+    @classmethod
+    def as_wrapped_object_type(cls) -> T:
+        """
+        For type-checking purposes, returns a proxy as the type of the wrapped object.
+        """
+        return cast(T, cls())
 
 
-class _PathsProxy(Paths):
+class _ProjectRootProxy(_Proxy[Path]):
+    """
+    Acts like a pathlib.Path object but creates a concrete Path object dynamically on
+    every access based on the caller's module.
+    """
+
+    @property
+    def _concrete_instance(self) -> Path:
+        path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
+        return path_to_pyproject_toml.parent
+
+    def __truediv__(self, other) -> Path:
+        return self._concrete_instance / other
+
+
+class _PathsProxy(_Proxy[Paths]):
     """
     Acts like a Paths object but creates a concrete Paths object dynamically on every
     access.
     """
 
     @property
-    def _concrete_paths_instance(self) -> Paths:
+    def _concrete_instance(self) -> Paths:
         path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
         return _ConcretePaths(path_to_pyproject_toml)
 
-    def __dir__(self) -> List[str]:
-        return dir(self._concrete_paths_instance)
-
-    def __getattr__(self, name: str) -> Path:
-        return getattr(self._concrete_paths_instance, name)
-
     def __len__(self) -> int:
-        return len(self._concrete_paths_instance)
-
-    def __repr__(self) -> str:
-        cls_name = type(self).__qualname__
-        return f"<{cls_name} routing attribute access to {self._concrete_paths_instance!r}>"
+        return len(self._concrete_instance)
 
 
 ##################################### External API #####################################
@@ -179,8 +192,8 @@ class _PathsProxy(Paths):
 
 # The proxy intercepts attribute access and uses an appropriate concrete Paths object to
 # provide the correct paths to the caller.
-paths: Paths = _PathsProxy()
-project_root = cast(Path, _PathProxy())
+paths = _PathsProxy.as_wrapped_object_type()
+project_root = _ProjectRootProxy.as_wrapped_object_type()
 
 
 def find_caller_relative_path_to_pyproject() -> Path:
