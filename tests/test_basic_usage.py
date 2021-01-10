@@ -56,6 +56,14 @@ def test_project_root() -> None:
     assert Path(str(project_root)) == Path(os.fspath(project_root))
 
 
+@pytest.mark.skipif(os.name != "posix", reason="bytes(Path()) only recommended on Unix")
+def test_project_root_can_be_converted_to_bytes():
+    """
+    Test that converting to bytes() returns a valid path
+    """
+    assert bytes(project_root) == bytes(Path(os.fspath(project_root)))
+
+
 def test_len():
     assert len(paths) >= len(EXPECTED_PATHS)
 
