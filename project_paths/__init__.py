@@ -37,7 +37,7 @@ import inspect
 import warnings
 from os import PathLike
 from pathlib import Path
-from typing import Dict, Generic, List, Optional, Protocol, Tuple, TypeVar, cast
+from typing import Dict, Generic, List, Optional, Protocol, Tuple, TypeVar, Union, cast
 
 import toml
 
@@ -168,8 +168,13 @@ class _ProjectRootProxy(_Proxy[Path]):
         path_to_pyproject_toml = find_caller_relative_path_to_pyproject()
         return path_to_pyproject_toml.parent
 
+    # __dunder__ methods that must be EXPLICITLY overridden:
+
     def __truediv__(self, other) -> Path:
         return self._concrete_instance / other
+
+    def __fspath__(self) -> Union[str, bytes]:
+        return self._concrete_instance.__fspath__()
 
 
 class _PathsProxy(_Proxy[Paths]):
