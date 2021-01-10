@@ -34,6 +34,7 @@ Then access it in your Python application:
 """
 
 import inspect
+import pathlib
 import warnings
 from os import PathLike
 from pathlib import Path
@@ -251,11 +252,14 @@ def _find_caller_module_name_and_file() -> Tuple[str, Optional[str]]:
     MODULE_EXCEPTIONS = (
         # Skip over any stack frames in THIS module
         __name__,
+        # To enable Path(project_root) calls, we need to ignore
+        # stack frames from pathlib
+        pathlib.__name__,
     )
 
     try:
-        # Crawl up the stack until we no longer find a reference code written in THIS
-        # module.
+        # Crawl up the stack until we no longer find a caller in THIS module or any
+        # excluded module (e.g., ignore calls within pathlib)
         for frame_info in inspect.stack():
             mod_name = frame_info.frame.f_globals.get("__name__")
             if mod_name not in MODULE_EXCEPTIONS:
