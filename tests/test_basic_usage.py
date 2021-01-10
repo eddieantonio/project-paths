@@ -53,6 +53,7 @@ def test_project_root() -> None:
     assert (project_root / "pyproject.toml").is_file()
     assert (project_root / package_name).is_dir()
     assert isinstance(os.fspath(project_root), (str, bytes))
+    assert Path(str(project_root)) == Path(os.fspath(project_root))
 
 
 def test_len():
