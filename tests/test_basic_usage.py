@@ -55,6 +55,8 @@ def test_project_root() -> None:
     assert isinstance(os.fspath(project_root), (str, bytes))
     assert Path(str(project_root)) == Path(os.fspath(project_root))
 
+    assert Path(project_root) == Path(os.fspath(project_root))
+
 
 @pytest.mark.skipif(os.name != "posix", reason="bytes(Path()) only recommended on Unix")
 def test_project_root_can_be_converted_to_bytes():
