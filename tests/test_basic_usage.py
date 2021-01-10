@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+import os
 from pathlib import Path
 
 import project_paths
@@ -51,6 +52,7 @@ def test_project_root() -> None:
     assert project_root.is_dir()
     assert (project_root / "pyproject.toml").is_file()
     assert (project_root / package_name).is_dir()
+    assert isinstance(os.fspath(project_root), (str, bytes))
 
 
 def test_len():
