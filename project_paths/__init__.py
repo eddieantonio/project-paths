@@ -278,7 +278,7 @@ def _find_pyproject_by_parent_traversal(base: Path) -> Path:
     Returns the path to pyproject.toml relative to the given base path.
     Traverses BACKWARDS starting from the base and going out of the parents.
     """
-    for directory in [base, *base.parents]:
+    for directory in [base, *base.resolve().parents]:
         candidate = directory / "pyproject.toml"
         if candidate.is_file():
             return candidate
